@@ -1,35 +1,37 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
-import random
-import time
 
 class WaterQualitySensorState:
-    def __init__(self, sensor_id):
-        self.sensor_id = sensor_id
+    def __init__(self):
         self.next_reading_time = 0.0
+        self.data_to_send = None
 
 class WaterQualitySensor(AtomicDEVS):
-    def __init__(self, sensor_id, data_interval=3600):
-        AtomicDEVS.__init__(self, f"WaterQualitySensor_{sensor_id}")
-        self.state = WaterQualitySensorState(sensor_id)
-        self.data_interval = data_interval
+    def __init__(self, reading_interval=1.0):
+        AtomicDEVS.__init__(self, "WaterQualitySensor")
+        self.reading_interval = reading_interval
+        self.state = WaterQualitySensorState()
+        self.timeLast = 0.0  # Initialize timeLast
+        self.inport = self.addInPort("in")
         self.outport = self.addOutPort("out")
 
     def timeAdvance(self):
-        if self.state.next_reading_time == INFINITY:
+        if self.state.data_to_send is None:
             return INFINITY
         return self.state.next_reading_time - self.timeLast
 
+    def extTransition(self, inputs):
+        self.state.data_to_send = inputs[self.inport]
+        self.state.next_reading_time = self.timeLast + self.reading_interval
+        return self.state
+
     def outputFnc(self):
-        sensor_data = {
-            "sensor_id": self.state.sensor_id,
-            "timestamp": int(time.time()),
-            "pH": random.uniform(0, 14),
-            "turbidity": random.uniform(0, 100),
-            "tds": random.uniform(0, 1000)
-        }
-        return {self.outport: sensor_data}
+        sent_data = self.state.data_to_send
+        self.state.data_to_send = None
+        print(f"Water Quality Sensor simulated sending: {sent_data}")
+        return {self.outport: sent_data}
 
     def intTransition(self):
-        self.state.next_reading_time = self.timeLast + self.data_interval
+        self.timeLast = self.state.next_reading_time  # Update timeLast
+        self.state.next_reading_time = INFINITY
         return self.state
