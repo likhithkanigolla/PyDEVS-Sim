@@ -5,7 +5,7 @@ import time
 
 class WaterQualitySensorState:
     def __init__(self):
-        self.next_reading_time = 0.0
+        self.next_reading_time = 1.0  # Set initial next reading time to 1.0
         self.sensor_id = "Sensor_01"  # Define sensor_id directly
         self.data_to_send = None  # Initialize data_to_send to None
 
@@ -23,7 +23,6 @@ class WaterQualitySensor(AtomicDEVS):
         if self.state.data_to_send is None:
             print("Data to send is None, returning INFINITY")
             return INFINITY
-        print(f"Returning {self.state.next_reading_time - self.timeLast}")
         return self.state.next_reading_time - self.timeLast
 
     def extTransition(self, inputs):
@@ -47,4 +46,5 @@ class WaterQualitySensor(AtomicDEVS):
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time  # Update timeLast
         self.state.next_reading_time = self.timeLast + self.data_interval  # Schedule next reading
+        self.state.data_to_send = None  # Reset data_to_send after sending
         return self.state
