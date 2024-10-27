@@ -23,7 +23,8 @@ class WaterQualitySensor(AtomicDEVS):
         self.timeLast = 0.0
         self.inport = self.addInPort("in")
         self.outport = self.addOutPort("out")
-
+        self.state.data_to_send = self.generate_sensor_data() 
+        
     def timeAdvance(self):
         print(f"[{self.name}] timeAdvance called. Next reading time: {self.state.next_reading_time}, timeLast: {self.timeLast}")
         return self.state.next_reading_time - self.timeLast if self.state.data_to_send else INFINITY
