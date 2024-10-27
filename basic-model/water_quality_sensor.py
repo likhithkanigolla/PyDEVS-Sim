@@ -7,9 +7,9 @@ class WaterQualitySensorState:
         self.data_to_send = None
 
 class WaterQualitySensor(AtomicDEVS):
-    def __init__(self, reading_interval=1.0):
+    def __init__(self, data_interval=1.0):
         AtomicDEVS.__init__(self, "WaterQualitySensor")
-        self.reading_interval = reading_interval
+        self.data_interval = data_interval
         self.state = WaterQualitySensorState()
         self.timeLast = 0.0  # Initialize timeLast
         self.inport = self.addInPort("in")
@@ -22,7 +22,7 @@ class WaterQualitySensor(AtomicDEVS):
 
     def extTransition(self, inputs):
         self.state.data_to_send = inputs[self.inport]
-        self.state.next_reading_time = self.timeLast + self.reading_interval
+        self.state.next_reading_time = self.timeLast + self.data_interval
         return self.state
 
     def outputFnc(self):
