@@ -1,10 +1,30 @@
 from pypdevs.simulator import Simulator
 from model import WaterQualityModel
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 if __name__ == '__main__':
+    
+    logging.debug("Starting the model")
+    
     model = WaterQualityModel()
+    logging.debug("Model Loaded")
+    
     sim = Simulator(model)
+    logging.debug("Simulator Loaded")
+    
     sim.setClassicDEVS()
-    sim.setVerbose()  
-    sim.setTerminationTime(60)  
+    logging.debug("Classic DEVS set")
+    
+    sim.setVerbose()
+    logging.debug("Verbose mode set")
+    
+    sim.setTerminationTime(60)
+    logging.debug("Termination time set to 60")
+    
+    logging.debug("Starting simulation")
     sim.simulate()
+    logging.debug("Simulation finished")
