@@ -46,5 +46,11 @@ class WaterQualitySensor(AtomicDEVS):
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time  # Update timeLast
         self.state.next_reading_time = self.timeLast + self.data_interval  # Schedule next reading
-        self.state.data_to_send = None  # Reset data_to_send after sending
+        self.state.data_to_send = {
+            "sensor_id": self.state.sensor_id,
+            "timestamp": int(time.time()),
+            "pH": random.uniform(0, 14),
+            "turbidity": random.uniform(0, 100),
+            "tds": random.uniform(0, 1000)
+        }  # Generate data for the next cycle
         return self.state
