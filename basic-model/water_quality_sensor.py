@@ -14,16 +14,36 @@ class WaterQualitySensor(AtomicDEVS):
         AtomicDEVS.__init__(self, name)
         self.data_interval = data_interval
         self.state = WaterQualitySensorState()
-        self.timeLast = 0.0  # Initialize timeLast
+        self.timeLast = 0.0
         self.inport = self.addInPort("in")
         self.outport = self.addOutPort("out")
 
+        # Generate initial data so the first timeAdvance doesn’t return INFINITY
+        self.state.data_to_send = {
+            "sensor_id": self.state.sensor_id,
+            "timestamp": int(time.time()),
+            "pH": random.uniform(0, 14),
+            "turbidity": random.uniform(0, 100),
+            "tds": random.uniform(0, 1000)
+        }
+
     def timeAdvance(self):
         print(f"[{self.name}] timeAdvance called. Next reading time: {self.state.next_reading_time}, timeLast: {self.timeLast}")
-        if self.state.data_to_send is None:
-            print("Data to send is None, returning INFINITY")
-            return INFINITY
-        return self.state.next_reading_time - self.timeLast
+        return self.state.next_reading_time - self.timeLast if self.state.data_to_send else INFINITY
+
+    def intTransition(self):
+        print(f"[{self.name}] intTransition called.")
+        self.timeLast = self.state.next_reading_time  # Update timeLast
+        self.state.next_reading_time = self.timeLast + self.data_interval  # Schedule next reading
+        # Generate new data for the next cycle
+        self.state.data_to_send = {
+            "sensor_id": self.state.sensor_id,
+            "timestamp": int(time.time()),
+            "pH": random.uniform(0, 14),
+            "turbidity": random.uniform(0, 100),
+            "tds": random.uniform(0, 1000)
+        }
+        return self.state
 
     def extTransition(self, inputs):
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
@@ -41,16 +61,3 @@ class WaterQualitySensor(AtomicDEVS):
         }
         print(f"[{self.name}] outputFnc called. Sending data: {self.state.data_to_send}")
         return {self.outport: self.state.data_to_send}
-
-    def intTransition(self):
-        print(f"[{self.name}] intTransition called.")
-        self.timeLast = self.state.next_reading_time  # Update timeLast
-        self.state.next_reading_time = self.timeLast + self.data_interval  # Schedule next reading
-        self.state.data_to_send = {
-            "sensor_id": self.state.sensor_id,
-            "timestamp": int(time.time()),
-            "pH": random.uniform(0, 14),
-            "turbidity": random.uniform(0, 100),
-            "tds": random.uniform(0, 1000)
-        }  # Generate data for the next cycle
-        return self.state
