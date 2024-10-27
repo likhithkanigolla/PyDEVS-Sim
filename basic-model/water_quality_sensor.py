@@ -16,11 +16,13 @@ class WaterQualitySensor(AtomicDEVS):
         self.outport = self.addOutPort("out")
 
     def timeAdvance(self):
+        print(f"[{self.name}] timeAdvance called. Next reading time: {self.state.next_reading_time}, timeLast: {self.timeLast}")
         if self.state.data_to_send is None:
             return INFINITY
         return self.state.next_reading_time - self.timeLast
 
     def extTransition(self, inputs):
+        print(f"[{self.name}] extTransition called with inputs: {inputs}")
         self.state.data_to_send = inputs[self.inport]
         self.state.next_reading_time = self.timeLast + self.data_interval
         return self.state
@@ -28,10 +30,11 @@ class WaterQualitySensor(AtomicDEVS):
     def outputFnc(self):
         sent_data = self.state.data_to_send
         self.state.data_to_send = None
-        print(f"Water Quality Sensor simulated sending: {sent_data}")
+        print(f"[{self.name}] outputFnc called. Sending data: {sent_data}")
         return {self.outport: sent_data}
 
     def intTransition(self):
+        print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time  # Update timeLast
         self.state.next_reading_time = INFINITY
         return self.state
