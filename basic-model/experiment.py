@@ -22,8 +22,8 @@ if __name__ == '__main__':
     sim.setVerbose()
     logging.debug("Verbose mode set")
     
-    sim.setTerminationTime(60)
-    logging.debug("Termination time set to 60")
+    sim.setTerminationTime(86400) # 24 hours
+    logging.debug("Termination time set")
     
     logging.debug("Starting simulation")
     sim.simulate()

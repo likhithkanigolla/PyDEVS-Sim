@@ -13,7 +13,7 @@ class OneM2MInterface(AtomicDEVS):
         AtomicDEVS.__init__(self, "OneM2MInterface")
         self.simulated_delay = simulated_delay
         self.state = OneM2MInterfaceState()
-        self.timeLast = 0.0  # Initialize timeLast for consistent time tracking
+        self.timeLast = 0.0 
         self.inport = self.addInPort("in")
         self.outport = self.addOutPort("out")
 
@@ -34,6 +34,6 @@ class OneM2MInterface(AtomicDEVS):
         return {self.outport: sent_data}
 
     def intTransition(self):
-        self.timeLast = self.state.processing_time  # Update timeLast to current processing time
+        self.timeLast = self.state.processing_time
         self.state.processing_time = INFINITY
         return self.state

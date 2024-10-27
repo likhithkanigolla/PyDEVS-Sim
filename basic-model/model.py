@@ -10,10 +10,10 @@ class WaterQualityModel(CoupledDEVS):
         print("Model Loaded")
 
         print("Initializing Water Quality Sensor")
-        self.sensor = self.addSubModel(WaterQualitySensor("Sensor_01", data_interval=10))
+        self.sensor = self.addSubModel(WaterQualitySensor("WM-WD-KH98-00", data_interval=3600)) # 1 hour
         
         print("Initializing OneM2M Interface")
-        self.onem2m = self.addSubModel(OneM2MInterface(simulated_delay=2))
+        self.onem2m = self.addSubModel(OneM2MInterface(simulated_delay=1))
         
         print("Initializing Sink")
         self.sink = self.addSubModel(Sink())
