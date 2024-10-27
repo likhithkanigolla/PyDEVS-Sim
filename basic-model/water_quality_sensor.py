@@ -7,8 +7,8 @@ class WaterQualitySensorState:
         self.data_to_send = None
 
 class WaterQualitySensor(AtomicDEVS):
-    def __init__(self, data_interval=1.0):
-        AtomicDEVS.__init__(self, "WaterQualitySensor")
+    def __init__(self, name, data_interval=1.0):
+        AtomicDEVS.__init__(self, name)
         self.data_interval = data_interval
         self.state = WaterQualitySensorState()
         self.timeLast = 0.0  # Initialize timeLast

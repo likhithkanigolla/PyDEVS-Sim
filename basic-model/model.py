@@ -13,4 +13,4 @@ class WaterQualityModel(CoupledDEVS):
         self.sink = self.addSubModel(Sink())
 
         self.connectPorts(self.sensor.outport, self.onem2m.inport)
-        self.connectPorts(self.onem2m.outport, self.sink.inport) 
+        self.connectPorts(self.onem2m.outport, self.sink.inport)
