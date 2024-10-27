@@ -21,7 +21,9 @@ class WaterQualitySensor(AtomicDEVS):
     def timeAdvance(self):
         print(f"[{self.name}] timeAdvance called. Next reading time: {self.state.next_reading_time}, timeLast: {self.timeLast}")
         if self.state.data_to_send is None:
+            print("Data to send is None, returning INFINITY")
             return INFINITY
+        print(f"Returning {self.state.next_reading_time - self.timeLast}")
         return self.state.next_reading_time - self.timeLast
 
     def extTransition(self, inputs):
