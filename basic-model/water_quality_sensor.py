@@ -6,7 +6,13 @@ import time
 class WaterQualitySensorState:
     def __init__(self):
         self.next_reading_time = 0.0
-        self.data_to_send = None
+        self.data_to_send = {
+            "sensor_id": self.state.sensor_id,
+            "timestamp": int(time.time()),
+            "pH": random.uniform(0, 14),
+            "turbidity": random.uniform(0, 100),
+            "tds": random.uniform(0, 1000)
+        }
 
 class WaterQualitySensor(AtomicDEVS):
     def __init__(self, name, data_interval=1.0):
@@ -30,16 +36,22 @@ class WaterQualitySensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        sent_data = {
+        # sent_data = {
+        #     "sensor_id": self.state.sensor_id,
+        #     "timestamp": int(time.time()),
+        #     "pH": random.uniform(0, 14),
+        #     "turbidity": random.uniform(0, 100),
+        #     "tds": random.uniform(0, 1000)
+        # }
+        self.state.data_to_send = {
             "sensor_id": self.state.sensor_id,
             "timestamp": int(time.time()),
             "pH": random.uniform(0, 14),
             "turbidity": random.uniform(0, 100),
             "tds": random.uniform(0, 1000)
         }
-        self.state.data_to_send = None
-        print(f"[{self.name}] outputFnc called. Sending data: {sent_data}")
-        return {self.outport: sent_data}
+        print(f"[{self.name}] outputFnc called. Sending data: {self.state.data_to_send}")
+        return {self.outport: self.state.data_to_send}
 
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")
