@@ -1,5 +1,7 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
+import random
+import time
 
 class WaterQualitySensorState:
     def __init__(self):
@@ -28,7 +30,13 @@ class WaterQualitySensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        sent_data = self.state.data_to_send
+        sent_data = {
+            "sensor_id": self.state.sensor_id,
+            "timestamp": int(time.time()),
+            "pH": random.uniform(0, 14),
+            "turbidity": random.uniform(0, 100),
+            "tds": random.uniform(0, 1000)
+        }
         self.state.data_to_send = None
         print(f"[{self.name}] outputFnc called. Sending data: {sent_data}")
         return {self.outport: sent_data}
