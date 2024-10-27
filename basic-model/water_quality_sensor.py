@@ -6,13 +6,8 @@ import time
 class WaterQualitySensorState:
     def __init__(self):
         self.next_reading_time = 0.0
-        self.data_to_send = {
-            "sensor_id": self.state.sensor_id,
-            "timestamp": int(time.time()),
-            "pH": random.uniform(0, 14),
-            "turbidity": random.uniform(0, 100),
-            "tds": random.uniform(0, 1000)
-        }
+        self.sensor_id = "Sensor_01"  # Define sensor_id directly
+        self.data_to_send = None  # Initialize data_to_send to None
 
 class WaterQualitySensor(AtomicDEVS):
     def __init__(self, name, data_interval=1.0):
@@ -36,13 +31,6 @@ class WaterQualitySensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        # sent_data = {
-        #     "sensor_id": self.state.sensor_id,
-        #     "timestamp": int(time.time()),
-        #     "pH": random.uniform(0, 14),
-        #     "turbidity": random.uniform(0, 100),
-        #     "tds": random.uniform(0, 1000)
-        # }
         self.state.data_to_send = {
             "sensor_id": self.state.sensor_id,
             "timestamp": int(time.time()),
@@ -56,5 +44,5 @@ class WaterQualitySensor(AtomicDEVS):
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time  # Update timeLast
-        self.state.next_reading_time = INFINITY
+        self.state.next_reading_time = self.timeLast + self.data_interval  # Schedule next reading
         return self.state
