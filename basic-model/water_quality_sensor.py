@@ -3,7 +3,7 @@ from pypdevs.infinity import INFINITY
 
 class WaterQualitySensorState:
     def __init__(self):
-        self.next_reading_time = 0.0
+        self.next_reading_time = 1.0  # Set initial next reading time
         self.data_to_send = None
 
 class WaterQualitySensor(AtomicDEVS):
@@ -18,7 +18,7 @@ class WaterQualitySensor(AtomicDEVS):
     def timeAdvance(self):
         print(f"[{self.name}] timeAdvance called. Next reading time: {self.state.next_reading_time}, timeLast: {self.timeLast}")
         if self.state.data_to_send is None:
-            return INFINITY
+            return self.state.next_reading_time - self.timeLast
         return self.state.next_reading_time - self.timeLast
 
     def extTransition(self, inputs):
@@ -36,5 +36,5 @@ class WaterQualitySensor(AtomicDEVS):
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time  # Update timeLast
-        self.state.next_reading_time = INFINITY
+        self.state.next_reading_time = self.timeLast + self.data_interval
         return self.state
