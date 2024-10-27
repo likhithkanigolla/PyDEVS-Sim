@@ -6,5 +6,5 @@ if __name__ == '__main__':
     sim = Simulator(model)
     sim.setClassicDEVS()
     sim.setVerbose()  
-    sim.setTerminationTime(60)  
+    sim.setTerminationTime(6000)  
     sim.simulate()
