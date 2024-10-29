@@ -3,9 +3,6 @@ from pypdevs.infinity import INFINITY
 import random
 import time
 
-
-
-
 class WaterQualitySensorState:
     def __init__(self):
         self.next_reading_time = 1.0  
@@ -21,15 +18,6 @@ class WaterQualitySensor(AtomicDEVS):
         self.inport = self.addInPort("in")
         self.outport = self.addOutPort("out")
 
-       
-        # self.state.data_to_send = {
-        #     "sensor_id": self.state.sensor_id,
-        #     "timestamp": int(time.time()),
-        #     "pH": random.uniform(0, 14),
-        #     "turbidity": random.uniform(0, 100),
-        #     "tds": random.uniform(0, 1000)
-        # }
-        
         self.state.data_to_send = {
             "m2m:cin" :{
                  "lbl":[
@@ -50,14 +38,6 @@ class WaterQualitySensor(AtomicDEVS):
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_reading_time 
         self.state.next_reading_time = self.timeLast + self.data_interval 
-       
-        # self.state.data_to_send = {
-        #     "sensor_id": self.state.sensor_id,
-        #     "timestamp": int(time.time()),
-        #     "pH": random.uniform(0, 14),
-        #     "turbidity": random.uniform(0, 100),
-        #     "tds": random.uniform(0, 1000)
-        # }
         
         self.state.data_to_send = {
             "m2m:cin" :{
@@ -79,14 +59,6 @@ class WaterQualitySensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        # self.state.data_to_send = {
-        #     "sensor_id": self.state.sensor_id,
-        #     "timestamp": int(time.time()),
-        #     "pH": random.uniform(0, 14),
-        #     "turbidity": random.uniform(0, 100),
-        #     "tds": random.uniform(0, 1000)
-        # }
-        
         self.state.data_to_send = {
             "m2m:cin" :{
                  "lbl":[
