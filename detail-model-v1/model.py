@@ -1,27 +1,69 @@
 from pypdevs.DEVS import CoupledDEVS
 
-from water_quality_sensor import WaterQualitySensor
+# Import key components
+from water_quality_sensor import WaterQualityNode
 from onem2m_interface import OneM2MInterface
 from sink import Sink
 
+#individual sensors
+from sensors.ph_sensor import PHSensor
+from sensors.temp_sensor import TempSensor
+from sensors.tds_sensor import TDSSensor
+
+#communication models
+from comm.adc_comm import ADC
+from comm.spi_comm import SPI
+
 class WaterQualityModel(CoupledDEVS):
     def __init__(self):
-        CoupledDEVS.__init__(self, "WaterQualityModel")
+        super().__init__("WaterQualityModel")
         print("Model Loaded")
 
-        print("Initializing Water Quality Sensor")
-        self.sensor = self.addSubModel(WaterQualitySensor("WM-WD-KH98-00", data_interval=3600)) # 1 hour
-        
+        # Initialize sensors
+        print("Initializing Sensors")
+        ph_sensor = self.addSubModel(PHSensor("PHSensor"))
+        temp_sensor = self.addSubModel(TempSensor("TempSensor"))
+        tds_sensor = self.addSubModel(TDSSensor("TDSSensor"))
+
+        # Initialize communication models
+        print("Initializing Communication Models")
+        adc = self.addSubModel(ADC("ADC"))
+        spi = self.addSubModel(SPI("SPI"))
+
+        # Initialize Water Quality Node
+        print("Initializing Water Quality Node")
+        water_quality_node = self.addSubModel(WaterQualityNode("WM-WD-KH98-00"))
+
+        # Initialize OneM2M Interface and Sink
         print("Initializing OneM2M Interface")
-        self.onem2m = self.addSubModel(OneM2MInterface(simulated_delay=1))
+        onem2m_interface = self.addSubModel(OneM2MInterface(simulated_delay=1))
         
         print("Initializing Sink")
-        self.sink = self.addSubModel(Sink())
-        
-        print("Connecting Sensor's outport to OneM2M Interface's inport")
-        self.connectPorts(self.sensor.outport, self.onem2m.inport)
-        
+        sink = self.addSubModel(Sink())
+
+        # Sensor to Communication Model connections
+        print("Connecting PH Sensor to ADC")
+        self.connectPorts(ph_sensor.outport, adc.inport_ph)
+
+        print("Connecting TDS Sensor to ADC")
+        self.connectPorts(tds_sensor.outport, adc.inport_tds)
+
+        print("Connecting Temperature Sensor to SPI")
+        self.connectPorts(temp_sensor.outport, spi.inport_temp)
+
+        # Communication Model to Water Quality Node connections
+        print("Connecting ADC output to Water Quality Node ADC input")
+        self.connectPorts(adc.outport, water_quality_node.adc_inport)
+
+        print("Connecting SPI output to Water Quality Node SPI input")
+        self.connectPorts(spi.outport, water_quality_node.spi_inport)
+
+        # Water Quality Node to OneM2M Interface
+        print("Connecting Water Quality Node's outport to OneM2M Interface's inport")
+        self.connectPorts(water_quality_node.outport, onem2m_interface.inport)
+
+        # OneM2M Interface to Sink
         print("Connecting OneM2M Interface's outport to Sink's inport")
-        self.connectPorts(self.onem2m.outport, self.sink.inport)
-        
+        self.connectPorts(onem2m_interface.outport, sink.inport)
+
         print("Model initialization complete")
