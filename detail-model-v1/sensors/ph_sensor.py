@@ -12,6 +12,7 @@ class PHSensor(AtomicDEVS):
 
     def outputFnc(self):
         ph_value = random.uniform(0, 14)  # Random pH value
+        print(f"[{self.name}] Generating pH value: {ph_value}")
         return {self.outport: ph_value}
 
     def __lt__(self, other):

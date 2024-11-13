@@ -2,11 +2,16 @@ from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
 
 class Sink(AtomicDEVS):
-    def __init__(self):
-        AtomicDEVS.__init__(self, "Sink")
+    def __init__(self, name="Sink"):
+        super().__init__(name)
         self.inport = self.addInPort("in")
 
     def extTransition(self, inputs):
-        received_data = inputs[self.inport]
-        print(f"Sink received: {received_data}")
-        return self
+        print(f"[{self.name}] Received data: {inputs[self.inport]}")
+        return self.state
+
+    def timeAdvance(self):
+        return INFINITY
+
+    def outputFnc(self):
+        return {}

@@ -12,6 +12,7 @@ class TDSSensor(AtomicDEVS):
 
     def outputFnc(self):
         tds_value = random.uniform(0, 1000)  # Random TDS value
+        print(f"[{self.name}] Generating TDS value: {tds_value}")
         return {self.outport: tds_value}
 
     def __lt__(self, other):

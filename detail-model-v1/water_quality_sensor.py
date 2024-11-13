@@ -9,12 +9,14 @@ class WaterQualityNodeState:
 
 class WaterQualityNode(AtomicDEVS):
     def __init__(self, name):
+        print(f"Initializing WaterQualityNode with name: {name}")
         AtomicDEVS.__init__(self, name)
         self.state = WaterQualityNodeState()
         self.timeLast = 0.0  # Initialize timeLast
         self.spi_inport = self.addInPort("spi_in")
         self.adc_inport = self.addInPort("adc_in")
         self.outport = self.addOutPort("out")
+        self.priority = 1  # Example priority attribute
 
     def timeAdvance(self):
         # Calculate the remaining time until the next send event
@@ -23,11 +25,14 @@ class WaterQualityNode(AtomicDEVS):
 
     def extTransition(self, inputs):
         # Update the state based on inputs from SPI and ADC
+        print(f"[{self.name}] extTransition called with inputs: {inputs}")
         if self.spi_inport in inputs:
             self.state.data_aggregated['temperature'] = inputs[self.spi_inport]
+            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
         if self.adc_inport in inputs:
             sensor_data = inputs[self.adc_inport]
             self.state.data_aggregated[sensor_data['sensor_id']] = sensor_data
+            print(f"[{self.name}] Aggregated sensor data: {sensor_data}")
         self.timeLast = self.state.next_send_time  # Update timeLast
         return self.state
 
@@ -41,14 +46,25 @@ class WaterQualityNode(AtomicDEVS):
     def outputFnc(self):
         # Only send data if there is aggregated data
         if self.state.data_aggregated:
+            timestamp = str(int(time.time()))
+            ph_value = str(self.state.data_aggregated.get('ADC', {}).get('ph', ''))
+            tds_value = str(self.state.data_aggregated.get('ADC', {}).get('tds', ''))
+            temp_value = str(self.state.data_aggregated.get('SPI', {}).get('temperature', ''))
+            con_value = [timestamp, ph_value, tds_value, temp_value]
             data_to_send = {
                 "m2m:cin": {
                     "lbl": ["AE-WM-WD", "WM-WD-KH98-00", "V4.1.0", "WM-WD-V4.1.0"],
-                    "con": f"{int(time.time())}, {self.state.data_aggregated}"
+                    "con": con_value
                 }
             }
             print(f"[{self.name}] Sending aggregated data: {data_to_send}")
             # Clear the aggregated data after sending
             self.state.data_aggregated = {}
             return {self.outport: data_to_send}
+        else:
+            print(f"[{self.name}] No data to send.")
         return {}
+
+    def __lt__(self, other):
+        # Define comparison logic based on priority attribute
+        return self.priority < other.priority

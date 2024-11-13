@@ -12,6 +12,7 @@ class TempSensor(AtomicDEVS):
 
     def outputFnc(self):
         temp_value = random.uniform(0, 100)  # Random temperature
+        print(f"[{self.name}] Generating temperature value: {temp_value}")
         return {self.outport: temp_value}
 
     def __lt__(self, other):
