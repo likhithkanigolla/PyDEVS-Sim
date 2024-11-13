@@ -27,8 +27,8 @@ class WaterQualityNode(AtomicDEVS):
         # Update the state based on inputs from SPI and ADC
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
         if self.spi_inport in inputs:
-            self.state.data_aggregated['temperature'] = inputs[self.spi_inport]
-            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
+            self.state.data_aggregated['SPI'] = inputs[self.spi_inport]
+            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['SPI']}")
         if self.adc_inport in inputs:
             sensor_data = inputs[self.adc_inport]
             self.state.data_aggregated[sensor_data['sensor_id']] = sensor_data
