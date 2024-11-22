@@ -1,8 +1,8 @@
 from pypdevs.DEVS import CoupledDEVS
 
 # Import key components
-from water_quality_sensor import WaterQualityNode
-from onem2m_interface import OneM2MInterface
+from nodes.water_quality_sensor import WaterQualityNode
+from components.onem2m_interface import OneM2MInterface
 from sink import Sink
 
 # Individual sensors
@@ -11,8 +11,8 @@ from sensors.temp_sensor import TempSensor
 from sensors.tds_sensor import TDSSensor
 
 # Communication models
-from comm.adc_comm import ADC
-from comm.spi_comm import SPI
+from communications.adc_comm import ADC
+from communications.spi_comm import SPI
 
 class WaterQualityModel(CoupledDEVS):
     def __init__(self):
@@ -65,3 +65,4 @@ class WaterQualityModel(CoupledDEVS):
         self.connectPorts(onem2m_interface.outport, sink.inport)
 
         print("Model initialization complete")
+        
