@@ -3,14 +3,15 @@ from pypdevs.infinity import INFINITY
 
 class SPIState:
     def __init__(self):
-        self.temp_value = None
+        self.data={}
         self.next_internal_time = INFINITY
 
 class SPI(AtomicDEVS):
-    def __init__(self, name):
+    def __init__(self, name, data_types=None):
         super().__init__(name)
         self.state = SPIState()
-        self.inport_temp = self.addInPort("in_temp")
+        self.data_types = data_types or []
+        self.inports = {data_type: self.addInPort(f"in_{data_type}") for data_type in self.data_types}
         self.out_port = self.addOutPort("out")
         self.priority = 2
 
@@ -18,19 +19,16 @@ class SPI(AtomicDEVS):
         return self.state.next_internal_time
 
     def extTransition(self, inputs):
-        print(f"[{self.name}] extTransition called with inputs: {inputs}")
-        if self.inport_temp in inputs:
-            self.state.temp_value = inputs[self.inport_temp]
-            print(f"[{self.name}] Received temperature value: {self.state.temp_value}")
+        for data_type, port in self.inports.items():
+            if port in inputs:
+                self.state.data[data_type] = inputs[port]
+                print(f"[{self.name}] Received {data_type} value: {inputs[port]}")
         self.state.next_internal_time = 0.0  # Schedule an immediate internal transition
         return self.state
 
     def outputFnc(self):
         # Forward the received data to the WaterQualityNode
-        data_to_send = {
-            "sensor_id": "SPI",
-            "temperature": self.state.temp_value
-        }
+        data_to_send = {"sensor_id": self.name, **self.state.data}
         print(f"[{self.name}] Forwarding data: {data_to_send}")
         self.state.next_internal_time = INFINITY  # Reset the internal time
         return {self.out_port: data_to_send}
@@ -41,5 +39,4 @@ class SPI(AtomicDEVS):
         return self.state
 
     def __lt__(self, other):
-        
         return self.priority < other.priority

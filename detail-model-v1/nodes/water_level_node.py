@@ -8,46 +8,46 @@ class WaterLevelNodeState:
         self.next_send_time = 1.0  # Initial time until the next data send
 
 class WaterLevelNode(AtomicDEVS):
-    def __init__(self, name):
-        print(f"Initializing WaterLevelNode with name: {name}")
+    def __init__(self, name=None):
+        print(f"[{name}] Initializing WaterLevelNode.")
         AtomicDEVS.__init__(self, name)
         self.state = WaterLevelNodeState()
-        self.timeLast = 0.0  # Initialize timeLast
-        self.adc_inport = self.addInPort("adc_inport")
+        self.timeLast = 0.0
+        self.spi_inport = self.addInPort("spi_in")
+        self.uart_inport = self.addInPort("uart_in")
         self.out_port = self.addOutPort("out")
-        self.priority = 3  # Priority for nodes
-
+        self.priority = 3
+        
     def timeAdvance(self):
-        # Calculate the remaining time until the next send event
         print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_send_time}, timeLast: {self.timeLast}")
         return self.state.next_send_time - self.timeLast if self.state.data_aggregated else INFINITY
-
+    
     def extTransition(self, inputs):
-        # Update the state based on inputs from ADC
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
-        if self.adc_inport in inputs:
-            sensor_data = inputs[self.adc_inport]
-            self.state.data_aggregated[sensor_data['sensor_id']] = sensor_data
-            print(f"[{self.name}] Aggregated sensor data: {sensor_data}")
+        if self.spi_inport in inputs:
+            self.state.data_aggregated['temperature'] = inputs[self.spi_inport]
+            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
+        if self.uart_inport in inputs:
+            self.state.data_aggregated['ultrasonic'] = inputs[self.uart_inport]
+            print(f"[{self.name}] Aggregated ultrasonic data: {self.state.data_aggregated['ultrasonic']}")
         self.timeLast = self.state.next_send_time  # Update timeLast
         return self.state
-
+    
     def intTransition(self):
-        # Schedule the next send time
         print(f"[{self.name}] intTransition called.")
         self.timeLast = self.state.next_send_time  # Update timeLast
         self.state.next_send_time += 1.0
         return self.state
-
+    
     def outputFnc(self):
-        # Only send data if there is aggregated data
         if self.state.data_aggregated:
             timestamp = str(int(time.time()))
-            distance_value = str(self.state.data_aggregated.get('ADC_WaterLevel', {}).get('distance', ''))
-            con_value = [timestamp, distance_value]
+            temp_value = str(self.state.data_aggregated.get('temperature', {}).get('temperature', ''))
+            distance_value = str(self.state.data_aggregated.get('ultrasonic', {}).get('distance', ''))
+            con_value = [timestamp, temp_value, distance_value]
             data_to_send = {
                 "m2m:cin": {
-                    "lbl": ["AE-WM-WL", "WM-WL-KH98-00", "V4.1.0", "WM-WL-V4.1.0"],
+                    "lbl": ["AE-WM-WL", "WM-WL-KH98-00", "V2.1.0", "WM-WD-V2.1.0"],
                     "con": con_value
                 }
             }

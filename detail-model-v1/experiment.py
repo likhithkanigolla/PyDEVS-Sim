@@ -7,8 +7,8 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     logging.debug("Starting the model")
     
-    model = WaterQualityModel()
-    # model = WaterLevelModel()
+    # model = WaterQualityModel()
+    model = WaterLevelModel()
     logging.debug("Model Loaded")
     
     sim = Simulator(model)

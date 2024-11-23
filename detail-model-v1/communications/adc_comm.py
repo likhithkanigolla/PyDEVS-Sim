@@ -39,5 +39,4 @@ class ADC(AtomicDEVS):
         return self.state
 
     def __lt__(self, other):
-        # Define comparison logic based on priority attribute
         return self.priority < other.priority
