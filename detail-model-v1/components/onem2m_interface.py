@@ -13,7 +13,7 @@ class OneM2MInterface(AtomicDEVS):
         self.state = OneM2MInterfaceState()
         self.timeLast = 0.0
         self.inport = self.addInPort("in")
-        self.outport = self.addOutPort("out")
+        self.out_port = self.addout_port("out")
         self.priority = 4
 
     def timeAdvance(self):
@@ -54,7 +54,7 @@ class OneM2MInterface(AtomicDEVS):
         }
         self.state.data_to_send = None
         print(f"OneM2M Interface simulated sending: {transformed_data}")
-        return {self.outport: transformed_data}
+        return {self.out_port: transformed_data}
 
     def intTransition(self):
         self.timeLast = self.state.processing_time

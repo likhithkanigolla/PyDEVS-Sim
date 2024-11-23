@@ -14,7 +14,7 @@ class WaterLevelNode(AtomicDEVS):
         self.state = WaterLevelNodeState()
         self.timeLast = 0.0  # Initialize timeLast
         self.adc_inport = self.addInPort("adc_inport")
-        self.outport = self.addOutPort("out")
+        self.out_port = self.addout_port("out")
         self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):
@@ -54,7 +54,7 @@ class WaterLevelNode(AtomicDEVS):
             print(f"[{self.name}] Sending aggregated data: {data_to_send}")
             # Clear the aggregated data after sending
             self.state.data_aggregated = {}
-            return {self.outport: data_to_send}
+            return {self.out_port: data_to_send}
         else:
             print(f"[{self.name}] No data to send.")
         return {}

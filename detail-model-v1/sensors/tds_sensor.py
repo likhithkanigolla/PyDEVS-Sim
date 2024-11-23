@@ -4,17 +4,24 @@ import random
 class TDSSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
-        self.outport = self.addOutPort("out")
+        self.in_port = self.addInPort("in_port")
+        self.out_port = self.addout_port("out_port")
+        self.state = {"tds": 0}
         self.priority = 1
-
-    def timeAdvance(self):
-        return 5.0  # Every 5 seconds
+        
+    def intTransition(self):
+        self.state["tds"] = random.uniform(0, 1000)
+        return self.state
+    
+    def extTransition(self, inputs):
+        return self.state
 
     def outputFnc(self):
-        tds_value = random.uniform(0, 1000)  # Random TDS value
-        print(f"[{self.name}] Generating TDS value: {tds_value}")
-        return {self.outport: tds_value}
+        print(f"[{self.name}] Generating TDS value: {self.state['tds']}")
+        return {self.out_port: self.state['tds']}
+    
+    def timeAdvance(self):
+        return 5.0 
 
     def __lt__(self, other):
-        
         return self.priority < other.priority

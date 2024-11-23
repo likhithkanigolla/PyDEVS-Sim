@@ -5,20 +5,24 @@ class CurrentSensor(AtomicDEVS):
     def __init__(self, name):
         super(CurrentSensor, self).__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.outport = self.addOutPort("outport")
-        self.state = 0
+        self.out_port = self.addout_port("out_port")
+        self.state = {"current": 0}
+        self.priority = 1
 
     def intTransition(self):
-        self.state = random.uniform(0, 100)
+        self.state["current"] = random.uniform(0, 100)
         return self.state
 
     def extTransition(self, inputs):
-        if self.in_port in inputs:
-            self.state = inputs[self.in_port]
+        # if self.in_port in inputs:
+        #     self.state = inputs[self.in_port]
         return self.state
 
     def outputFnc(self):
-        return {self.outport: self.state}
+        return {self.out_port: self.state["current"]}
 
     def timeAdvance(self):
-        return 1
+        return 1.0
+    
+    def __lt__(self, other):
+            return self.priority < other.priority

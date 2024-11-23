@@ -5,15 +5,24 @@ class PulseSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.state = 0
-        self.sigma = random.uniform(0.5, 1.5)
+        self.in_port = self.addInPort("in_port")
+        self.out_port = self.addout_port("out_port")
+        self.state = {"pulse": 0}
+        self.priority = 1
 
     def intTransition(self):
-        self.state = random.randint(0, 1)
-        self.sigma = random.uniform(0.5, 1.5)
+        self.state["pulse"] = random.uniform(0, 100)
         return self.state
+    
+    def extTransition(self, inputs):
+        return self.state
+    
+    def outputFnc(self):
+        print(f"[{self.name}] Generating pulse value: {self.state['pulse']}")
+        return {"pulse": self.state['pulse']}
 
     def timeAdvance(self):
-        return self.sigma
-
-    def outputFnc(self):
-        return {"pulse": self.state}
+        return 1.0
+    
+    def __lt__(self, other):
+        return self.priority < other.priority

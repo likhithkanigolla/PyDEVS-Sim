@@ -4,16 +4,25 @@ import random
 class TurbiditySensor(AtomicDEVS):
     def __init__(self, name):
         super(TurbiditySensor, self).__init__(name)
-        self.state = 0
-        self.sigma = 1
-        self.outport = self.addOutPort("out")
-
+        self.in_port = self.addInPort("in_port")
+        self.out_port = self.addout_port("out_port")
+        self.state = {"turbidity": 0}
+        self.priority = 1
+    
     def intTransition(self):
-        self.state = random.uniform(0, 100)
+        self.state["turbidity"] = random.uniform(0, 100)
         return self.state
-
-    def timeAdvance(self):
-        return self.sigma
-
+    
+    def extTransition(self, inputs):
+        return self.state
+    
     def outputFnc(self):
-        return {self.outport: self.state}
+        print(f"[{self.name}] Generating turbidity value: {self.state['turbidity']}")
+        return {self.out_port: self.state['turbidity']}
+    
+    def timeAdvance(self):
+        return 5.0
+    
+    def __lt__(self, other):
+        return self.priority < other.priority
+    

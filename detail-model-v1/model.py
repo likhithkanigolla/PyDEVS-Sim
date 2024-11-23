@@ -34,22 +34,22 @@ class WaterQualityModel(CoupledDEVS):
         sink = self.addSubModel(Sink("Sink"))
 
         # Connect sensors to communication models
-        self.connectPorts(ph_sensor.outport, adc_quality.inports["pH"])
-        self.connectPorts(tds_sensor.outport, adc_quality.inports["TDS"])
-        self.connectPorts(temp_sensor.outport, spi.inport_temp)
-        # self.connectPorts(ultrasonic_sensor.outport, adc_level.inports["distance"])
+        self.connectPorts(ph_sensor.out_port, adc_quality.inports["pH"])
+        self.connectPorts(tds_sensor.out_port, adc_quality.inports["TDS"])
+        self.connectPorts(temp_sensor.out_port, spi.inport_temp)
+        # self.connectPorts(ultrasonic_sensor.out_port, adc_level.inports["distance"])
 
         # Connect communication models to nodes
-        self.connectPorts(adc_quality.outport, water_quality_node.adc_inport)
-        self.connectPorts(spi.outport, water_quality_node.spi_inport)
-        self.connectPorts(adc_level.outport, water_level_node.adc_inport)
+        self.connectPorts(adc_quality.out_port, water_quality_node.adc_inport)
+        self.connectPorts(spi.out_port, water_quality_node.spi_inport)
+        self.connectPorts(adc_level.out_port, water_level_node.adc_inport)
 
         # Connect nodes to the OneM2M interface
-        self.connectPorts(water_quality_node.outport, onem2m_interface.inport)
-        self.connectPorts(water_level_node.outport, onem2m_interface.inport)
+        self.connectPorts(water_quality_node.out_port, onem2m_interface.inport)
+        self.connectPorts(water_level_node.out_port, onem2m_interface.inport)
 
         # Connect OneM2M interface to sink
-        self.connectPorts(onem2m_interface.outport, sink.inport)
+        self.connectPorts(onem2m_interface.out_port, sink.inport)
 
 
 class WaterLevelModel(CoupledDEVS):
@@ -79,18 +79,18 @@ class WaterLevelModel(CoupledDEVS):
 
         # Connect sensors to communication models
         print("Connecting Ultrasonic Sensor to ADC")
-        self.connectPorts(ultrasonic_sensor.outport, adc_level.inports["distance"])
+        self.connectPorts(ultrasonic_sensor.out_port, adc_level.inports["distance"])
 
         # Connect communication models to water level node
         print("Connecting ADC output to Water Level Node ADC input")
-        self.connectPorts(adc_level.outport, water_level_node.adc_inport)
+        self.connectPorts(adc_level.out_port, water_level_node.adc_inport)
 
         # Connect water level node to OneM2M interface
-        print("Connecting Water Level Node's outport to OneM2M Interface's inport")
-        self.connectPorts(water_level_node.outport, onem2m_interface.inport)
+        print("Connecting Water Level Node's out_port to OneM2M Interface's inport")
+        self.connectPorts(water_level_node.out_port, onem2m_interface.inport)
 
         # Connect OneM2M interface to sink
-        print("Connecting OneM2M Interface's outport to Sink's inport")
-        self.connectPorts(onem2m_interface.outport, sink.inport)
+        print("Connecting OneM2M Interface's out_port to Sink's inport")
+        self.connectPorts(onem2m_interface.out_port, sink.inport)
 
         print("Model initialization complete")

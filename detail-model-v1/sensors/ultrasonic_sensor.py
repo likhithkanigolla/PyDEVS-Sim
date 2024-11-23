@@ -5,7 +5,7 @@ class UltrasonicSensor(AtomicDEVS):
     def __init__(self, name):
         super(UltrasonicSensor, self).__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.outport = self.addOutPort("outport")
+        self.out_port = self.addout_port("out_port")
         self.state = {"distance": 0}
         self.priority = 1
 
@@ -17,11 +17,11 @@ class UltrasonicSensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        return {self.outport: self.state["distance"]}
+        print(f"[self.name]Generating Distance: {self.state['distance']}")
+        return {self.out_port: self.state["distance"]}
 
     def timeAdvance(self):
         return 1.0
     
     def __lt__(self, other):
-            
             return self.priority < other.priority
