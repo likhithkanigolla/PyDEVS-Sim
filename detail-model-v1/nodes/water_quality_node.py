@@ -16,7 +16,7 @@ class WaterQualityNode(AtomicDEVS):
         self.spi_inport = self.addInPort("spi_in")
         self.adc_inport = self.addInPort("adc_in")
         self.outport = self.addOutPort("out")
-        self.priority = 3  
+        self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):
         # Calculate the remaining time until the next send event
@@ -47,8 +47,8 @@ class WaterQualityNode(AtomicDEVS):
         # Only send data if there is aggregated data
         if self.state.data_aggregated:
             timestamp = str(int(time.time()))
-            ph_value = str(self.state.data_aggregated.get('ADC', {}).get('ph', ''))
-            tds_value = str(self.state.data_aggregated.get('ADC', {}).get('tds', ''))
+            ph_value = str(self.state.data_aggregated.get('ADC_WaterQuality', {}).get('pH', ''))
+            tds_value = str(self.state.data_aggregated.get('ADC_WaterQuality', {}).get('TDS', ''))
             temp_value = str(self.state.data_aggregated.get('SPI', {}).get('temperature', ''))
             con_value = [timestamp, ph_value, tds_value, temp_value]
             data_to_send = {
@@ -66,5 +66,5 @@ class WaterQualityNode(AtomicDEVS):
         return {}
 
     def __lt__(self, other):
-        
+        # Define comparison logic based on priority attribute
         return self.priority < other.priority
