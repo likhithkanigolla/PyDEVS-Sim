@@ -1,6 +1,6 @@
 from pypdevs.DEVS import CoupledDEVS
 
-from water_quality_sensor import WaterQualitySensor
+from water_quality_node import WaterQualitySensor
 from onem2m_interface import OneM2MInterface
 from sink import Sink
 

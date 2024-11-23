@@ -5,7 +5,7 @@ class TempSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.outport = self.addOutPort("out")
-        self.priority = random.randint(1, 100)  # Example priority attribute
+        self.priority = 1
 
     def timeAdvance(self):
         return 5.0  # Every 5 seconds
@@ -16,5 +16,5 @@ class TempSensor(AtomicDEVS):
         return {self.outport: temp_value}
 
     def __lt__(self, other):
-        # Define comparison logic based on priority attribute
+        
         return self.priority < other.priority

@@ -5,7 +5,7 @@ class CurrentSensor(AtomicDEVS):
     def __init__(self, name):
         super(CurrentSensor, self).__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = 0
 
     def intTransition(self):
@@ -18,7 +18,7 @@ class CurrentSensor(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
-        return {self.out_port: self.state}
+        return {self.outport: self.state}
 
     def timeAdvance(self):
         return 1

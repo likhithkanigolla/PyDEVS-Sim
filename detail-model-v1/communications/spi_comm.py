@@ -12,7 +12,7 @@ class SPI(AtomicDEVS):
         self.state = SPIState()
         self.inport_temp = self.addInPort("in_temp")
         self.outport = self.addOutPort("out")
-        self.priority = 1  # Example priority attribute
+        self.priority = 2
 
     def timeAdvance(self):
         return self.state.next_internal_time
@@ -41,5 +41,5 @@ class SPI(AtomicDEVS):
         return self.state
 
     def __lt__(self, other):
-        # Define comparison logic based on priority attribute
+        
         return self.priority < other.priority

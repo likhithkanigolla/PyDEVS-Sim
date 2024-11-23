@@ -11,7 +11,7 @@ class CameraSensor(AtomicDEVS):
         self.number_detected = None
         self.processing_time = random.uniform(1, 5)
         self.addInPort("in_port")
-        self.addOutPort("out_port")
+        self.addOutPort("outport")
 
     def intTransition(self):
         if self.state == "processing":
@@ -28,7 +28,7 @@ class CameraSensor(AtomicDEVS):
 
     def outputFnc(self):
         if self.state == "processing":
-            return {"out_port": self.number_detected}
+            return {"outport": self.number_detected}
         return {}
 
     def timeAdvance(self):

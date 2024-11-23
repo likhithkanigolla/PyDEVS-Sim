@@ -16,7 +16,7 @@ class WaterQualityNode(AtomicDEVS):
         self.spi_inport = self.addInPort("spi_in")
         self.adc_inport = self.addInPort("adc_in")
         self.outport = self.addOutPort("out")
-        self.priority = 1  # Example priority attribute
+        self.priority = 3  
 
     def timeAdvance(self):
         # Calculate the remaining time until the next send event
@@ -66,5 +66,5 @@ class WaterQualityNode(AtomicDEVS):
         return {}
 
     def __lt__(self, other):
-        # Define comparison logic based on priority attribute
+        
         return self.priority < other.priority
