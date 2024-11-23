@@ -5,7 +5,7 @@ class CurrentSensor(AtomicDEVS):
     def __init__(self, name):
         super(CurrentSensor, self).__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addout_port("out_port")
+        self.out_port = self.addOutPort("out_port")
         self.state = {"current": 0}
         self.priority = 1
 

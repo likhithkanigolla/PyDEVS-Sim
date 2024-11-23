@@ -14,7 +14,7 @@ class WaterLevelNode(AtomicDEVS):
         self.state = WaterLevelNodeState()
         self.timeLast = 0.0  # Initialize timeLast
         self.adc_inport = self.addInPort("adc_inport")
-        self.out_port = self.addout_port("out")
+        self.out_port = self.addOutPort("out")
         self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):

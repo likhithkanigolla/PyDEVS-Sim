@@ -5,7 +5,7 @@ class TurbiditySensor(AtomicDEVS):
     def __init__(self, name):
         super(TurbiditySensor, self).__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addout_port("out_port")
+        self.out_port = self.addOutPort("out_port")
         self.state = {"turbidity": 0}
         self.priority = 1
     

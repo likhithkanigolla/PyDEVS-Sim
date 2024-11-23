@@ -15,7 +15,7 @@ class WaterQualityNode(AtomicDEVS):
         self.timeLast = 0.0  # Initialize timeLast
         self.spi_inport = self.addInPort("spi_in")
         self.adc_inport = self.addInPort("adc_in")
-        self.out_port = self.addout_port("out")
+        self.out_port = self.addOutPort("out")
         self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):

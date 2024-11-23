@@ -12,7 +12,7 @@ class ADC(AtomicDEVS):
         self.state = ADCState()
         self.data_types = data_types or []
         self.inports = {data_type: self.addInPort(f"in_{data_type}") for data_type in self.data_types}
-        self.out_port = self.addout_port("out")
+        self.out_port = self.addOutPort("out")
         self.priority = 2  # Priority for communication models
 
     def timeAdvance(self):

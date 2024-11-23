@@ -11,7 +11,7 @@ class SPI(AtomicDEVS):
         super().__init__(name)
         self.state = SPIState()
         self.inport_temp = self.addInPort("in_temp")
-        self.out_port = self.addout_port("out")
+        self.out_port = self.addOutPort("out")
         self.priority = 2
 
     def timeAdvance(self):

@@ -13,7 +13,7 @@ class OneM2MInterface(AtomicDEVS):
         self.state = OneM2MInterfaceState()
         self.timeLast = 0.0
         self.inport = self.addInPort("in")
-        self.out_port = self.addout_port("out")
+        self.out_port = self.addOutPort("out")
         self.priority = 4
 
     def timeAdvance(self):
