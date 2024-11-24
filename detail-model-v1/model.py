@@ -3,17 +3,20 @@ from pypdevs.DEVS import CoupledDEVS
 from nodes.water_quality_node import WaterQualityNode
 from nodes.water_level_node import WaterLevelNode
 from nodes.water_quantity_node import WaterQuantityTypeOne
+from nodes.water_quality_node_cam import WaterQualityCamNode
 
 from sensors.ph_sensor import PHSensor
 from sensors.temp_sensor import TempSensor
 from sensors.tds_sensor import TDSSensor
 from sensors.ultrasonic_sensor import UltrasonicSensor
 from sensors.pulse_sensor import PulseSensor
+from sensors.camera_sensor import CameraSensor
 
 from communications.adc_comm import ADC
 from communications.spi_comm import SPI
 from communications.uart_comm import UART
 from communications.gpio_comm import GPIO
+from communications.csi_comm import CSI
 
 from components.onem2m_interface import OneM2MInterface
 from sink import Sink
@@ -134,5 +137,46 @@ class WaterQuantityTypeOneModel(CoupledDEVS):
 
         print("Model initialization complete")
         
-        
+class WaterQualityCamNodeModel(CoupledDEVS):
+    def __init__(self):
+        super().__init__("WaterQualityCamNodeModel")
+        print("Model Loaded")
+
+        # Initialize sensors
+        print("Initializing Sensors")
+        camera_sensor = self.addSubModel(CameraSensor("CameraSensor"))
+
+        # Initialize communication models
+        print("Initializing Communication Models")
+        csi = self.addSubModel(CSI("CSI", data_types=["camera"]))
+
+        # Initialize water quality cam node
+        print("Initializing Water Quality Cam Node")
+        water_quality_cam_node = self.addSubModel(WaterQualityCamNode("WaterQualityCamNode"))
+
+        # Initialize OneM2M interface
+        print("Initializing OneM2M Interface")
+        onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
+
+        # Initialize sink
+        print("Initializing Sink")
+        sink = self.addSubModel(Sink("Sink"))
+
+        # Connect sensors to communication models
+        print("Connecting Camera Sensor to CSI")
+        self.connectPorts(camera_sensor.out_port, csi.inports["camera"])
+
+        # Connect communication models to water quality cam node
+        print("Connecting CSI output to Water Quality Cam Node CSI input")
+        self.connectPorts(csi.out_port, water_quality_cam_node.csi_inport)
+
+        # Connect water quality cam node to OneM2M interface
+        print("Connecting Water Quality Cam Node's outport to OneM2M Interface's inport")
+        self.connectPorts(water_quality_cam_node.out_port, onem2m_interface.inport)
+
+        # Connect OneM2M interface to sink
+        print("Connecting OneM2M Interface's outport to Sink's inport")
+        self.connectPorts(onem2m_interface.out_port, sink.inport)
+
+        print("Model initialization complete")   
         

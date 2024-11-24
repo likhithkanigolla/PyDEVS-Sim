@@ -13,7 +13,7 @@ class CameraSensor(AtomicDEVS):
             "image_data": None,
             "number_detected": None,
             "processing_time": 0,
-            "status": "idle"
+            "status": "capturing"  # Start in capturing state
         }
         self.priority = 1
 
@@ -40,7 +40,7 @@ class CameraSensor(AtomicDEVS):
         return INFINITY
 
     def extTransition(self, inputs):
-        # Handle external inputs
+        # Handle external inputs (future manual interventions)
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
         self.state["status"] = "capturing"
         return self.state
@@ -51,14 +51,13 @@ class CameraSensor(AtomicDEVS):
             self.state["status"] = "processing"
         elif self.state["status"] == "processing":
             self.process_image()
-            self.state["status"] = "idle"
-            self.state["number"] = self.state["number_detected"]
+            self.state["status"] = "capturing"  # Loop back to capturing for continuous processing
         return self.state
 
     def outputFnc(self):
-        if self.state["status"] == "idle" and self.state["number_detected"] is not None:
-            print(f"[{self.name}] Outputting detected number: {self.state['number']}")
-            return {self.out_port: self.state["number"]}
+        if self.state["status"] == "processing" and self.state["number_detected"] is not None:
+            print(f"[{self.name}] Outputting detected number: {self.state['number_detected']}")
+            return {self.out_port: self.state["number_detected"]}
         return {}
 
     def __lt__(self, other):
