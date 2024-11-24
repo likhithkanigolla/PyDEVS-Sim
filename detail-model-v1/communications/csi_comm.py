@@ -12,7 +12,7 @@ class CSI(AtomicDEVS):
         self.state = CSIState()
         self.data_types = data_types or []
         self.inports = {data_type: self.addInPort(f"in_{data_type}") for data_type in self.data_types}
-        self.out_port = self.addOutPort("out")
+        self.outport = self.addOutPort("out")
         self.priority = 2  # Priority for communication models
 
     def timeAdvance(self):
@@ -31,7 +31,7 @@ class CSI(AtomicDEVS):
         data_to_send = {"sensor_id": self.name, **self.state.data}
         print(f"[{self.name}] Forwarding data: {data_to_send}")
         self.state.next_internal_time = INFINITY  # Reset the internal time
-        return {self.out_port: data_to_send}
+        return {self.outport: data_to_send}
 
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")

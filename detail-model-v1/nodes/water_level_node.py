@@ -15,7 +15,7 @@ class WaterLevelNode(AtomicDEVS):
         self.timeLast = 0.0
         self.spi_inport = self.addInPort("spi_in")
         self.uart_inport = self.addInPort("uart_in")
-        self.out_port = self.addOutPort("out")
+        self.outport = self.addOutPort("out")
         self.priority = 3
         
     def timeAdvance(self):
@@ -54,7 +54,7 @@ class WaterLevelNode(AtomicDEVS):
             print(f"[{self.name}] Sending aggregated data: {data_to_send}")
             # Clear the aggregated data after sending
             self.state.data_aggregated = {}
-            return {self.out_port: data_to_send}
+            return {self.outport: data_to_send}
         else:
             print(f"[{self.name}] No data to send.")
         return {}

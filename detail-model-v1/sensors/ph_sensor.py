@@ -5,7 +5,7 @@ class PHSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.inport = self.addInPort("in_port") 
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = {"ph": 0}
         self.priority = 1
     
@@ -18,7 +18,7 @@ class PHSensor(AtomicDEVS):
 
     def outputFnc(self):
         print(f"[{self.name}] Generating PH value: {self.state['ph']}")
-        return {self.out_port: self.state['ph']}
+        return {self.outport: self.state['ph']}
 
     def timeAdvance(self):
         return 5.0  

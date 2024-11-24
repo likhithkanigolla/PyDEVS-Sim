@@ -5,7 +5,7 @@ class TempSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = {"temp": 0}
         self.priority = 1
     
@@ -18,7 +18,7 @@ class TempSensor(AtomicDEVS):
     
     def outputFnc(self):
         print(f"[{self.name}] Generating temperature value: {self.state['temp']}")
-        return {self.out_port: self.state['temp']}
+        return {self.outport: self.state['temp']}
     
     def timeAdvance(self):
         return 5.0  # Every 5 seconds

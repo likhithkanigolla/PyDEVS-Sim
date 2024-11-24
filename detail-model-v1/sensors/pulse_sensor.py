@@ -5,7 +5,7 @@ class PulseSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = {"pulse": 0}
         self.priority = 1
 
@@ -18,7 +18,7 @@ class PulseSensor(AtomicDEVS):
     
     def outputFnc(self):
         print(f"[{self.name}] Generating pulse value: {self.state['pulse']}")
-        return {self.out_port: self.state['pulse']}
+        return {self.outport: self.state['pulse']}
 
     def timeAdvance(self):
         return 1.0

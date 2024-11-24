@@ -5,7 +5,7 @@ class TDSSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = {"tds": 0}
         self.priority = 1
         
@@ -18,7 +18,7 @@ class TDSSensor(AtomicDEVS):
 
     def outputFnc(self):
         print(f"[{self.name}] Generating TDS value: {self.state['tds']}")
-        return {self.out_port: self.state['tds']}
+        return {self.outport: self.state['tds']}
     
     def timeAdvance(self):
         return 5.0 

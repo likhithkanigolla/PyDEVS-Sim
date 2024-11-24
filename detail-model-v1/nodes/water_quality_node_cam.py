@@ -15,7 +15,7 @@ class WaterQualityCamNode(AtomicDEVS):
         self.state = WaterQualityCamState()
         self.timeLast = 0.0  # Initialize timeLast
         self.csi_inport = self.addInPort("csi_inport")
-        self.out_port = self.addOutPort("out")
+        self.outport = self.addOutPort("out")
         self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):
@@ -24,17 +24,13 @@ class WaterQualityCamNode(AtomicDEVS):
         return self.state.next_send_time - self.timeLast if self.state.data_aggregated else INFINITY
 
     def extTransition(self, inputs):
+        # Update the state based on inputs from CSI
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
         if self.csi_inport in inputs:
-            try:
-                camera_data = inputs[self.csi_inport]
-                print(f"[{self.name}] Received data: {camera_data}")
-                self.state.data_aggregated['camera'] = camera_data
-            except Exception as e:
-                print(f"[{self.name}] Error processing inputs: {e}")
+            self.state.data_aggregated['camera'] = inputs[self.csi_inport]
+            print(f"[{self.name}] Aggregated camera data: {self.state.data_aggregated['camera']}")
         self.timeLast = self.state.next_send_time  # Update timeLast
         return self.state
-
 
     def intTransition(self):
         # Schedule the next send time
@@ -44,12 +40,10 @@ class WaterQualityCamNode(AtomicDEVS):
         return self.state
 
     def outputFnc(self):
+        # Only send data if there is aggregated data
         if self.state.data_aggregated:
             timestamp = str(int(time.time()))
-            camera_value = self.state.data_aggregated.get('camera', {})
-            if isinstance(camera_value, dict):
-                camera_value = json.dumps(camera_value)  # Ensure JSON string format
-
+            camera_value = str(self.state.data_aggregated.get('camera', {}).get('camera', ''))
             con_value = [timestamp, camera_value]
             data_to_send = {
                 "m2m:cin": {
@@ -58,8 +52,9 @@ class WaterQualityCamNode(AtomicDEVS):
                 }
             }
             print(f"[{self.name}] Sending aggregated data: {data_to_send}")
-            self.state.data_aggregated = {}  # Clear aggregated data after sending
-            return {self.out_port: data_to_send}
+            # Clear the aggregated data after sending
+            self.state.data_aggregated = {}
+            return {self.outport: data_to_send}
         else:
             print(f"[{self.name}] No data to send.")
         return {}

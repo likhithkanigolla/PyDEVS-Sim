@@ -14,7 +14,7 @@ class WaterQuantityTypeOne(AtomicDEVS):
         self.state = WaterQuantityTypeOneState()
         self.time_last = 0.0  # Initialize time_last as a float
         self.gpio_inport = self.addInPort("gpio_in")
-        self.out_port = self.addOutPort("out")
+        self.outport = self.addOutPort("out")
         self.priority = 3
 
     def timeAdvance(self):
@@ -41,7 +41,7 @@ class WaterQuantityTypeOne(AtomicDEVS):
                 }
             }
             print(f"[{self.name}] Sending data: {data_to_send}")
-            return {self.out_port: data_to_send}
+            return {self.outport: data_to_send}
         else:
             print(f"[{self.name}] No data to send.")
             return {}

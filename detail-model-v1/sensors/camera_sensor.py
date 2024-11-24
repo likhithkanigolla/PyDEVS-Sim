@@ -7,7 +7,7 @@ class CameraSensor(AtomicDEVS):
     def __init__(self, name):
         super().__init__(name)
         self.in_port = self.addInPort("in_port")
-        self.out_port = self.addOutPort("out_port")
+        self.outport = self.addOutPort("outport")
         self.state = {
             "number": 0,
             "image_data": None,
@@ -57,7 +57,7 @@ class CameraSensor(AtomicDEVS):
     def outputFnc(self):
         if self.state["status"] == "processing" and self.state["number_detected"] is not None:
             print(f"[{self.name}] Outputting detected number: {self.state['number_detected']}")
-            return {self.out_port: self.state["number_detected"]}
+            return {self.outport: self.state["number_detected"]}
         return {}
 
     def __lt__(self, other):

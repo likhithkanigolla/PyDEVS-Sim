@@ -44,21 +44,21 @@ class WaterQualityModel(CoupledDEVS):
         sink = self.addSubModel(Sink("Sink"))
 
         # Connect sensors to communication models
-        self.connectPorts(ph_sensor.out_port, adc_quality.inports["pH"])
-        self.connectPorts(tds_sensor.out_port, adc_quality.inports["TDS"])
-        self.connectPorts(temp_sensor.out_port, spi_quality.inports["temperature"])
-        # self.connectPorts(ultrasonic_sensor.out_port, adc_level.inports["distance"])
+        self.connectPorts(ph_sensor.outport, adc_quality.inports["pH"])
+        self.connectPorts(tds_sensor.outport, adc_quality.inports["TDS"])
+        self.connectPorts(temp_sensor.outport, spi_quality.inports["temperature"])
+        # self.connectPorts(ultrasonic_sensor.outport, adc_level.inports["distance"])
 
         # Connect communication models to nodes
-        self.connectPorts(adc_quality.out_port, water_quality_node.adc_inport)
-        self.connectPorts(spi_quality.out_port, water_quality_node.spi_inport)
+        self.connectPorts(adc_quality.outport, water_quality_node.adc_inport)
+        self.connectPorts(spi_quality.outport, water_quality_node.spi_inport)
 
         # Connect nodes to the OneM2M interface
-        self.connectPorts(water_quality_node.out_port, onem2m_interface.inport)
-        self.connectPorts(water_level_node.out_port, onem2m_interface.inport)
+        self.connectPorts(water_quality_node.outport, onem2m_interface.inport)
+        self.connectPorts(water_level_node.outport, onem2m_interface.inport)
 
         # Connect OneM2M interface to sink
-        self.connectPorts(onem2m_interface.out_port, sink.inport)
+        self.connectPorts(onem2m_interface.outport, sink.inport)
 
 class WaterLevelModel(CoupledDEVS):
     def __init__(self, name=None):
@@ -80,18 +80,18 @@ class WaterLevelModel(CoupledDEVS):
         sink = self.addSubModel(Sink("Sink"))
         
         # Connect sensors to communication models
-        self.connectPorts(ultrasonic_sensor.out_port, uart_level.inports["distance"])
-        self.connectPorts(temp_sensor.out_port, spi_level.inports["temperature"])
+        self.connectPorts(ultrasonic_sensor.outport, uart_level.inports["distance"])
+        self.connectPorts(temp_sensor.outport, spi_level.inports["temperature"])
         
         # Connect communication models to nodes
-        self.connectPorts(uart_level.out_port, water_level_node.uart_inport)
-        self.connectPorts(spi_level.out_port, water_level_node.spi_inport)
+        self.connectPorts(uart_level.outport, water_level_node.uart_inport)
+        self.connectPorts(spi_level.outport, water_level_node.spi_inport)
     
         # Connect nodes to the OneM2M interface
-        self.connectPorts(water_level_node.out_port, onem2m_interface.inport)
+        self.connectPorts(water_level_node.outport, onem2m_interface.inport)
         
         # Connect OneM2M interface to sink
-        self.connectPorts(onem2m_interface.out_port, sink.inport)
+        self.connectPorts(onem2m_interface.outport, sink.inport)
 
 class WaterQuantityTypeOneModel(CoupledDEVS):
     def __init__(self):
@@ -120,20 +120,20 @@ class WaterQuantityTypeOneModel(CoupledDEVS):
 
         # Connect sensors to communication models
         print("Connecting Pulse Sensor to GPIO")
-        self.connectPorts(pulse_sensor.out_port, gpio_comm.inports["pulse"])
+        self.connectPorts(pulse_sensor.outport, gpio_comm.inports["pulse"])
 
         # Connect communication models to water quantity node
         print("Connecting GPIO output to Water Quantity Node GPIO input")
-        self.connectPorts(gpio_comm.out_port, water_quantity_node.gpio_inport)
+        self.connectPorts(gpio_comm.outport, water_quantity_node.gpio_inport)
 
 
         # Connect water quantity node to OneM2M interface
-        print("Connecting Water Quantity Node's out_port to OneM2M Interface's inport")
-        self.connectPorts(water_quantity_node.out_port, onem2m_interface.inport)
+        print("Connecting Water Quantity Node's outport to OneM2M Interface's inport")
+        self.connectPorts(water_quantity_node.outport, onem2m_interface.inport)
 
         # Connect OneM2M interface to sink
-        print("Connecting OneM2M Interface's out_port to Sink's inport")
-        self.connectPorts(onem2m_interface.out_port, sink.inport)
+        print("Connecting OneM2M Interface's outport to Sink's inport")
+        self.connectPorts(onem2m_interface.outport, sink.inport)
 
         print("Model initialization complete")
         
@@ -164,19 +164,19 @@ class WaterQualityCamNodeModel(CoupledDEVS):
 
         # Connect sensors to communication models
         print("Connecting Camera Sensor to CSI")
-        self.connectPorts(camera_sensor.out_port, csi.inports["camera"])
+        self.connectPorts(camera_sensor.outport, csi.inports["camera"])
 
         # Connect communication models to water quality cam node
         print("Connecting CSI output to Water Quality Cam Node CSI input")
-        self.connectPorts(csi.out_port, water_quality_cam_node.csi_inport)
+        self.connectPorts(csi.outport, water_quality_cam_node.csi_inport)
 
         # Connect water quality cam node to OneM2M interface
         print("Connecting Water Quality Cam Node's outport to OneM2M Interface's inport")
-        self.connectPorts(water_quality_cam_node.out_port, onem2m_interface.inport)
+        self.connectPorts(water_quality_cam_node.outport, onem2m_interface.inport)
 
         # Connect OneM2M interface to sink
         print("Connecting OneM2M Interface's outport to Sink's inport")
-        self.connectPorts(onem2m_interface.out_port, sink.inport)
+        self.connectPorts(onem2m_interface.outport, sink.inport)
 
         print("Model initialization complete")   
         
