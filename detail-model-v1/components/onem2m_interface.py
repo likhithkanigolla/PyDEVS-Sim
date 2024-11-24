@@ -14,7 +14,7 @@ class OneM2MInterface(AtomicDEVS):
         self.timeLast = 0.0
         self.inport = self.addInPort("in")
         self.out_port = self.addOutPort("out")
-        self.priority = 4
+        self.priority = 1  # Example priority attribute
 
     def timeAdvance(self):
         if self.state.data_to_send is None:
@@ -60,7 +60,7 @@ class OneM2MInterface(AtomicDEVS):
         self.timeLast = self.state.processing_time
         self.state.processing_time = INFINITY
         return self.state
-    
+
     def __lt__(self, other):
-        
+        # Define comparison logic based on priority attribute
         return self.priority < other.priority
