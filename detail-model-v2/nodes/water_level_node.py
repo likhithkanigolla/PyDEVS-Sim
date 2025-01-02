@@ -1,11 +1,14 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
-import time
+import time, random
 
 class WaterLevelNodeState:
     def __init__(self):
         self.data_aggregated = {}
-        self.next_send_time = 1.0  # Initial time until the next data send
+        if random.random() < 0.8:  # 80% chance
+            self.next_internal_time = 1.0
+        else:  # 20% chance
+            self.next_internal_time = 1.0 + random.uniform(-0.1, 0.3)
 
 class WaterLevelNode(AtomicDEVS):
     def __init__(self, name, esp_pins):
@@ -22,8 +25,8 @@ class WaterLevelNode(AtomicDEVS):
         self.outport = self.addOutPort("out")
 
     def timeAdvance(self):
-        print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_send_time}, timeLast: {self.timeLast}")
-        return self.state.next_send_time - self.timeLast if self.state.data_aggregated else INFINITY
+        print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_internal_time}, timeLast: {self.timeLast}")
+        return self.state.next_internal_time - self.timeLast if self.state.data_aggregated else INFINITY
     
     def extTransition(self, inputs):
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
@@ -33,13 +36,13 @@ class WaterLevelNode(AtomicDEVS):
         if self.temp_inport in inputs:
             self.state.data_aggregated['temperature'] = inputs[self.temp_inport]
             print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
-        self.timeLast = self.state.next_send_time  # Update timeLast
+        self.timeLast = self.state.next_internal_time  # Update timeLast
         return self.state
     
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")
-        self.timeLast = self.state.next_send_time  # Update timeLast
-        self.state.next_send_time += 1.0
+        self.timeLast = self.state.next_internal_time  # Update timeLast
+        self.state.next_internal_time += 1.0
         return self.state
     
     def outputFnc(self):

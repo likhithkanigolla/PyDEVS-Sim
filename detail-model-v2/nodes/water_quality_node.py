@@ -1,12 +1,17 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
-import time
+import time, random
 
 
 class WaterQualityNodeState:
     def __init__(self):
         self.data_aggregated = {}
-        self.next_send_time = 1.0  # Initial time until the next data send
+        # This node posting data every 1 hour, so either two values will be posted in instant due to node restarts
+        # Else once the value is missed it post the next value only after hour 
+        if random.random() < 0.8:  # 80% chance
+            self.next_internal_time = 3600.0
+        else:  # 20% chance
+            self.next_internal_time = 3600.0 + random.uniform(-3183, 8168) #values based on the average of min and max value of 4 sensors
 
 class WaterQualityNode(AtomicDEVS):
     def __init__(self, name, esp_pins):
@@ -30,8 +35,8 @@ class WaterQualityNode(AtomicDEVS):
         self.priority = 3  # Priority for nodes
 
     def timeAdvance(self):
-        print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_send_time}, timeLast: {self.timeLast}")
-        return self.state.next_send_time - self.timeLast if self.state.data_aggregated else INFINITY
+        print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_internal_time}, timeLast: {self.timeLast}")
+        return self.state.next_internal_time - self.timeLast if self.state.data_aggregated else INFINITY
 
     def extTransition(self, inputs):
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
@@ -43,13 +48,13 @@ class WaterQualityNode(AtomicDEVS):
             self.state.data_aggregated["TDS"] = inputs[self.tds_inport]
         if self.turbudity_inport in inputs:
             self.state.data_aggregated["turbidity"] = inputs[self.turbudity_inport]
-        self.timeLast = self.state.next_send_time
+        self.timeLast = self.state.next_internal_time
         return self.state
 
     def intTransition(self):
         print(f"[{self.name}] intTransition called.")
-        self.timeLast = self.state.next_send_time
-        self.state.next_send_time += 1.0
+        self.timeLast = self.state.next_internal_time
+        self.state.next_internal_time += 1.0
         return self.state
 
     def outputFnc(self):

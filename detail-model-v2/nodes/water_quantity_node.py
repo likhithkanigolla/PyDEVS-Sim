@@ -1,12 +1,17 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
-import time
+import time, random
 
 class WaterQuantityTypeOneState:
     def __init__(self):
         self.data = {}
-        self.next_internal_time = 1.0
+        if random.random() < 0.8:  # 80% chance
+            self.next_internal_time = 300.0
+        else:  # 20% chance
+            self.next_internal_time = 300.0 + random.uniform(-96, 134) #values based on the average of min and max value of 3 sensors
 
+    
+            
 class WaterQuantityTypeOne(AtomicDEVS):
     def __init__(self, name, esp_pins):
         print(f"[{name}] Initializing WaterQuantityTypeOne.")

@@ -3,7 +3,7 @@ from pypdevs.DEVS import CoupledDEVS
 from nodes.water_quality_node import WaterQualityNode
 from nodes.water_level_node import WaterLevelNode
 from nodes.water_quantity_node import WaterQuantityTypeOne
-from nodes.water_quality_node_cam import WaterQualityCamNode
+from nodes.water_quantity_node_cam import WaterQualityCamNode
 from nodes.motor_controller_node import MotorControlNode
 
 from sensors.ph_sensor import PHSensor

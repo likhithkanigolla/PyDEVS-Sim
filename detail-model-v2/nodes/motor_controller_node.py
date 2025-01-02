@@ -1,11 +1,15 @@
 from pypdevs.DEVS import AtomicDEVS
 from pypdevs.infinity import INFINITY
-import time
+import time,random
 
 class MotorControlNodeState:
     def __init__(self):
         self.data = {}
-        self.next_internal_time = 1.0
+        self.next_internal_time = 1.0 # In
+        if random.random() < 0.8:  # 80% chance
+            self.next_internal_time = 1.0
+        else:  # 20% chance
+            self.next_internal_time = 1.0 + random.uniform(-0.1, 0.3)
 
 class MotorControlNode(AtomicDEVS):
     def __init__(self, name, esp_pins):
