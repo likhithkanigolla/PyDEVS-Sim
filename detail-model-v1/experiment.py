@@ -1,5 +1,5 @@
 from pypdevs.simulator import Simulator
-from model import WaterQualityModel, WaterLevelModel, WaterQuantityTypeOneModel, WaterQualityCamNodeModel
+from model import WaterQualityModel, WaterLevelModel, WaterQuantityTypeOneModel, WaterQualityCamNodeModel, MotorControlNodeModel
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -7,10 +7,11 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     logging.debug("Starting the model")
     
-    # model = WaterQualityModel()
+    model = WaterQualityModel()
     # model = WaterLevelModel()
     # model = WaterQuantityTypeOneModel()
-    model = WaterQualityCamNodeModel()
+    # model = WaterQualityCamNodeModel()
+    # model = MotorControlNodeModel()
     
     logging.debug("Model Loaded")
     

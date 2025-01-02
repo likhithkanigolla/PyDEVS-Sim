@@ -11,7 +11,7 @@ class WaterQualityNode(AtomicDEVS):
     def __init__(self, name):
         print(f"Initializing WaterQualityNode with name: {name}")
         AtomicDEVS.__init__(self, name)
-        self.state = WaterQualityNodeState()
+        self.state = WaterQualityNodeStcate()
         self.timeLast = 0.0  # Initialize timeLast
         self.spi_inport = self.addInPort("spi_in")
         self.adc_inport = self.addInPort("adc_in")

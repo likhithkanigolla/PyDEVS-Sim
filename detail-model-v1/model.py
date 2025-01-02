@@ -4,6 +4,7 @@ from nodes.water_quality_node import WaterQualityNode
 from nodes.water_level_node import WaterLevelNode
 from nodes.water_quantity_node import WaterQuantityTypeOne
 from nodes.water_quality_node_cam import WaterQualityCamNode
+from nodes.motor_controller_node import MotorControlNode
 
 from sensors.ph_sensor import PHSensor
 from sensors.temp_sensor import TempSensor
@@ -11,6 +12,7 @@ from sensors.tds_sensor import TDSSensor
 from sensors.ultrasonic_sensor import UltrasonicSensor
 from sensors.pulse_sensor import PulseSensor
 from sensors.camera_sensor import CameraSensor
+from sensors.current_sensor import CurrentSensor
 
 from communications.adc_comm import ADC
 from communications.spi_comm import SPI
@@ -179,4 +181,48 @@ class WaterQualityCamNodeModel(CoupledDEVS):
         self.connectPorts(onem2m_interface.outport, sink.inport)
 
         print("Model initialization complete")   
+
+
+class MotorControlNodeModel(CoupledDEVS):
+    def __init__(self):
+        super().__init__("MotorControlNodeModel")
+        print("Model Loaded")
+
+        # Initialize sensors
+        print("Initializing Sensors")
+        pulse_sensor = self.addSubModel(PulseSensor("PulseSensor"))
+
+        # Initialize communication models
+        print("Initializing Communication Models")
+        uart_comm = self.addSubModel(UART("UART", data_types=["pulse"]))
+
+        # Initialize motor control node
+        print("Initializing Motor Control Node")
+        motor_control_node = self.addSubModel(MotorControlNode("MotorControlNode"))
+
+        # Initialize OneM2M interface
+        print("Initializing OneM2M Interface")
+        onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
+
+        # Initialize sink
+        print("Initializing Sink")
+        sink = self.addSubModel(Sink("Sink"))
+
+        # Connect sensors to communication models
+        print("Connecting Pulse Sensor to UART")
+        self.connectPorts(pulse_sensor.outport, uart_comm.inports["pulse"])
+
+        # Connect communication models to motor control node
+        print("Connecting UART output to Motor Control Node UART input")
+        self.connectPorts(uart_comm.outport, motor_control_node.uart_inport)
+
+        # Connect motor control node to OneM2M interface
+        print("Connecting Motor Control Node's outport to OneM2M Interface's inport")
+        self.connectPorts(motor_control_node.outport, onem2m_interface.inport)
+
+        # Connect OneM2M interface to sink
+        print("Connecting OneM2M Interface's outport to Sink's inport")
+        self.connectPorts(onem2m_interface.outport, sink.inport)
+
+        print("Model initialization complete")
         
