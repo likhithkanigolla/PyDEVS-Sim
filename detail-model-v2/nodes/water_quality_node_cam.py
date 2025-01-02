@@ -1,4 +1,4 @@
-from pypdevs.DEVS import AtomicDEVS
+from pypdevs.DEVS import AtomicDEVS, CoupledDEVS
 from pypdevs.infinity import INFINITY
 import time
 import json
@@ -9,12 +9,15 @@ class WaterQualityCamState:
         self.next_send_time = 1.0  # Initial time until the next data send
 
 class WaterQualityCamNode(AtomicDEVS):
-    def __init__(self, name):
+    def __init__(self, name, esp_pins):
         print(f"Initializing WaterQualityCamNode with name: {name}")
         AtomicDEVS.__init__(self, name)
         self.state = WaterQualityCamState()
         self.timeLast = 0.0  # Initialize timeLast
-        self.csi_inport = self.addInPort("csi_inport")
+        self.pins = esp_pins
+        
+        # Define ports
+        self.csi_inport = self.addInPort("csi_in")
         self.outport = self.addOutPort("out")
         self.priority = 3  # Priority for nodes
 
@@ -43,7 +46,7 @@ class WaterQualityCamNode(AtomicDEVS):
         # Only send data if there is aggregated data
         if self.state.data_aggregated:
             timestamp = str(int(time.time()))
-            camera_value = str(self.state.data_aggregated.get('camera', {}).get('camera', ''))
+            camera_value = str(self.state.data_aggregated.get('camera', ''))
             con_value = [timestamp, camera_value]
             data_to_send = {
                 "m2m:cin": {
@@ -62,3 +65,7 @@ class WaterQualityCamNode(AtomicDEVS):
     def __lt__(self, other):
         # Define comparison logic based on priority attribute
         return self.priority < other.priority
+
+
+
+

@@ -8,28 +8,31 @@ class WaterLevelNodeState:
         self.next_send_time = 1.0  # Initial time until the next data send
 
 class WaterLevelNode(AtomicDEVS):
-    def __init__(self, name=None):
+    def __init__(self, name, esp_pins):
         print(f"[{name}] Initializing WaterLevelNode.")
         AtomicDEVS.__init__(self, name)
         self.state = WaterLevelNodeState()
         self.timeLast = 0.0
-        self.spi_inport = self.addInPort("spi_in")
-        self.uart_inport = self.addInPort("uart_in")
-        self.outport = self.addOutPort("out")
         self.priority = 3
+        self.pins = esp_pins
         
+        # Access the first SPI pin for the ultrasonic and temp input ports
+        self.ultrasonic_inport = self.addInPort(f"ultrasonic_in_{self.pins['UART'][0]}")
+        self.temp_inport = self.addInPort(f"temp_in_{self.pins['SPI'][0]}")  # Use another SPI pin if required
+        self.outport = self.addOutPort("out")
+
     def timeAdvance(self):
         print(f"[{self.name}] timeAdvance called. Next send time: {self.state.next_send_time}, timeLast: {self.timeLast}")
         return self.state.next_send_time - self.timeLast if self.state.data_aggregated else INFINITY
     
     def extTransition(self, inputs):
         print(f"[{self.name}] extTransition called with inputs: {inputs}")
-        if self.spi_inport in inputs:
-            self.state.data_aggregated['temperature'] = inputs[self.spi_inport]
-            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
-        if self.uart_inport in inputs:
-            self.state.data_aggregated['ultrasonic'] = inputs[self.uart_inport]
+        if self.ultrasonic_inport in inputs:
+            self.state.data_aggregated['ultrasonic'] = inputs[self.ultrasonic_inport]
             print(f"[{self.name}] Aggregated ultrasonic data: {self.state.data_aggregated['ultrasonic']}")
+        if self.temp_inport in inputs:
+            self.state.data_aggregated['temperature'] = inputs[self.temp_inport]
+            print(f"[{self.name}] Aggregated temperature data: {self.state.data_aggregated['temperature']}")
         self.timeLast = self.state.next_send_time  # Update timeLast
         return self.state
     
@@ -42,8 +45,8 @@ class WaterLevelNode(AtomicDEVS):
     def outputFnc(self):
         if self.state.data_aggregated:
             timestamp = str(int(time.time()))
-            temp_value = str(self.state.data_aggregated.get('temperature', {}).get('temperature', ''))
-            distance_value = str(self.state.data_aggregated.get('ultrasonic', {}).get('distance', ''))
+            temp_value = str(self.state.data_aggregated.get('temperature', ''))
+            distance_value = str(self.state.data_aggregated.get('ultrasonic', ''))
             con_value = [timestamp, temp_value, distance_value]
             data_to_send = {
                 "m2m:cin": {

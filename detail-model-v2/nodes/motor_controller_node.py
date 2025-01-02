@@ -8,12 +8,15 @@ class MotorControlNodeState:
         self.next_internal_time = 1.0
 
 class MotorControlNode(AtomicDEVS):
-    def __init__(self, name=None):
+    def __init__(self, name, esp_pins):
         print(f"[{name}] Initializing MotorControlNode.")
         AtomicDEVS.__init__(self, name)
         self.state = MotorControlNodeState()
         self.time_last = 0.0  # Initialize time_last as a float
-        self.uart_inport = self.addInPort("uart_in")
+        self.pins = esp_pins
+        
+        # Define pins
+        self.pulse_inport = self.addInPort(f"pulse_in_{self.pins['DIGITAL_IO'][0]}")
         self.outport = self.addOutPort("out")
         self.priority = 3
 
@@ -23,8 +26,8 @@ class MotorControlNode(AtomicDEVS):
 
     def extTransition(self, inputs):
         print(f"[{self.name}] External transition called. Inputs: {inputs}")
-        if self.uart_inport in inputs:
-            self.state.data = inputs[self.uart_inport]
+        if self.pulse_inport in inputs:
+            self.state.data = {"pulse": inputs[self.pulse_inport]}
             print(f"[{self.name}] Received data: {self.state.data}")
         self.time_last = self.state.next_internal_time  # Update time_last
         return self.state

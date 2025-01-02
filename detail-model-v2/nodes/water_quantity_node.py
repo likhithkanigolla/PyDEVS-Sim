@@ -8,13 +8,16 @@ class WaterQuantityTypeOneState:
         self.next_internal_time = 1.0
 
 class WaterQuantityTypeOne(AtomicDEVS):
-    def __init__(self, name=None):
+    def __init__(self, name, esp_pins):
         print(f"[{name}] Initializing WaterQuantityTypeOne.")
         AtomicDEVS.__init__(self, name)
         self.state = WaterQuantityTypeOneState()
         self.time_last = 0.0  # Initialize time_last as a float
-        self.gpio_inport = self.addInPort("gpio_in")
-        self.outport = self.addOutPort("out")
+        self.pins = esp_pins
+        
+        # Define pins
+        self.pulse_inport = self.addInPort(f"pulse_in_{self.pins['DIGITAL_IO'][0]}")
+        self.outport = self.addOutPort("out_pin")
         self.priority = 3
 
     def timeAdvance(self):
@@ -23,8 +26,8 @@ class WaterQuantityTypeOne(AtomicDEVS):
 
     def extTransition(self, inputs):
         print(f"[{self.name}] External transition called. Inputs: {inputs}")
-        if self.gpio_inport in inputs:
-            self.state.data = inputs[self.gpio_inport]
+        if self.pulse_inport in inputs:
+            self.state.data = {"pulse": inputs[self.pulse_inport]}
             print(f"[{self.name}] Received data: {self.state.data}")
         self.time_last = self.state.next_internal_time  # Update time_last
         return self.state

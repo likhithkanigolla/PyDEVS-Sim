@@ -14,15 +14,38 @@ from sensors.pulse_sensor import PulseSensor
 from sensors.camera_sensor import CameraSensor
 from sensors.current_sensor import CurrentSensor
 
-from communications.adc_comm import ADC
-from communications.spi_comm import SPI
-from communications.uart_comm import UART
-from communications.gpio_comm import GPIO
-from communications.csi_comm import CSI
-
 from components.onem2m_interface import OneM2MInterface
 from sink import Sink
 
+esp_pins = {
+    # ESP32 NodeMCU Pin Configuration
+    "ADC": [32, 33, 34, 35, 36, 39],
+    "DIGITAL_IO": [0, 2, 4, 12, 13, 14, 15],
+    "PWM": [16, 17, 18, 19, 21, 23],
+    "I2C": [22, 27],
+    "SPI": [5, 18, 19, 23],
+    "UART": [1, 3, 9, 10, 16, 17],
+    "DAC": [25, 26],
+    "TOUCH": [0, 2, 4, 12, 13, 14, 27],
+    "RTC": [32, 33, 34, 35, 36, 39],
+    "POWER": {"3V3": "External", "GND": "External"}
+}
+
+raspberry_pi_pins = {
+    # Raspberry Pi GPIO Pin Configuration (Raspberry Pi 4 Model B)
+    "GPIO": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    "I2C": [2, 3],  # SDA, SCL
+    "SPI": [10, 11, 12, 13, 14, 15],  # MOSI, MISO, SCLK, CE0, CE1
+    "UART": [14, 15],  # TX, RX
+    "PWM": [18],  # PWM pin
+    "ADC": None,  # Raspberry Pi does not have built-in ADC, requires external ADC like MCP3008
+    "DIGITAL_IO": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],  # GPIO pins
+    "DAC": None,  # Raspberry Pi does not have built-in DAC, requires external DAC like MCP4725
+    "TOUCH": None,  # Raspberry Pi does not have built-in touch pins
+    "RTC": None,  # External RTC module like DS3231 is needed
+    "POWER": {"3V3": "External", "GND": "External"},
+    "CSI": "Camera Serial Interface (CSI) Port",  # Special port for camera connection
+}
 
 class WaterQualityModel(CoupledDEVS):
     def __init__(self):
@@ -34,16 +57,17 @@ class WaterQualityModel(CoupledDEVS):
         tds_sensor = self.addSubModel(TDSSensor("TDSSensor"))
 
         # Node
-        water_quality_node = self.addSubModel(WaterQualityNode("WaterQualityNode"))
+        water_quality_node = self.addSubModel(WaterQualityNode("WaterQualityNode", esp_pins))
 
         # Interfaces and Sink
         onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
         sink = self.addSubModel(Sink("Sink"))
 
-        # Connect sensors directly to the node
+        # Connect sensors directly to the node's input ports
         self.connectPorts(temp_sensor.outport, water_quality_node.temp_inport)
         self.connectPorts(ph_sensor.outport, water_quality_node.ph_inport)
         self.connectPorts(tds_sensor.outport, water_quality_node.tds_inport)
+        self.connectPorts(tds_sensor.outport, water_quality_node.turbudity_inport)
 
         # Connect node to the OneM2M interface
         self.connectPorts(water_quality_node.outport, onem2m_interface.inport)
@@ -51,167 +75,64 @@ class WaterQualityModel(CoupledDEVS):
         # Connect OneM2M interface to sink
         self.connectPorts(onem2m_interface.outport, sink.inport)
 
+
 class WaterLevelModel(CoupledDEVS):
-    def __init__(self, name=None):
+    def __init__(self):
         super().__init__("WaterLevelModel")
         
-        # Sensors
         ultrasonic_sensor = self.addSubModel(UltrasonicSensor("UltrasonicSensor"))
         temp_sensor = self.addSubModel(TempSensor("TempSensor"))
         
-        # Communication models
-        uart_level = self.addSubModel(UART("UART", data_types=["distance"]))
-        spi_level = self.addSubModel(SPI("SPI", data_types=["temperature"]))
+        water_level_node = self.addSubModel(WaterLevelNode("WaterLevelNode", esp_pins))
         
-        # Nodes
-        water_level_node = self.addSubModel(WaterLevelNode("WaterLevelNode"))
-        
-        # Interfaces and Sink
         onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
         sink = self.addSubModel(Sink("Sink"))
         
-        # Connect sensors to communication models
-        self.connectPorts(ultrasonic_sensor.outport, uart_level.inports["distance"])
-        self.connectPorts(temp_sensor.outport, spi_level.inports["temperature"])
-        
-        # Connect communication models to nodes
-        self.connectPorts(uart_level.outport, water_level_node.uart_inport)
-        self.connectPorts(spi_level.outport, water_level_node.spi_inport)
-    
-        # Connect nodes to the OneM2M interface
+        self.connectPorts(ultrasonic_sensor.outport, water_level_node.ultrasonic_inport)
+        self.connectPorts(temp_sensor.outport, water_level_node.temp_inport)
+
         self.connectPorts(water_level_node.outport, onem2m_interface.inport)
         
-        # Connect OneM2M interface to sink
         self.connectPorts(onem2m_interface.outport, sink.inport)
 
 class WaterQuantityTypeOneModel(CoupledDEVS):
     def __init__(self):
         super().__init__("WaterQuantityTypeOneModel")
-        print("Model Loaded")
-
-        # Initialize sensors
-        print("Initializing Sensors")
+        
         pulse_sensor = self.addSubModel(PulseSensor("PulseSensor"))
-
-        # Initialize communication models
-        print("Initializing Communication Models")
-        gpio_comm = self.addSubModel(GPIO("GPIO", data_types=["pulse"]))
-
-        # Initialize water quantity node
-        print("Initializing Water Quantity Node")
-        water_quantity_node = self.addSubModel(WaterQuantityTypeOne("WaterQuantityNode"))
-
-        # Initialize OneM2M interface
-        print("Initializing OneM2M Interface")
+        water_quantity_node = self.addSubModel(WaterQuantityTypeOne("WaterQuantityNode", esp_pins))
         onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
-
-        # Initialize sink
-        print("Initializing Sink")
         sink = self.addSubModel(Sink("Sink"))
 
-        # Connect sensors to communication models
-        print("Connecting Pulse Sensor to GPIO")
-        self.connectPorts(pulse_sensor.outport, gpio_comm.inports["pulse"])
-
-        # Connect communication models to water quantity node
-        print("Connecting GPIO output to Water Quantity Node GPIO input")
-        self.connectPorts(gpio_comm.outport, water_quantity_node.gpio_inport)
-
-
-        # Connect water quantity node to OneM2M interface
-        print("Connecting Water Quantity Node's outport to OneM2M Interface's inport")
+        self.connectPorts(pulse_sensor.outport, water_quantity_node.pulse_inport)
+        
         self.connectPorts(water_quantity_node.outport, onem2m_interface.inport)
 
-        # Connect OneM2M interface to sink
-        print("Connecting OneM2M Interface's outport to Sink's inport")
         self.connectPorts(onem2m_interface.outport, sink.inport)
-
-        print("Model initialization complete")
         
 class WaterQualityCamNodeModel(CoupledDEVS):
     def __init__(self):
         super().__init__("WaterQualityCamNodeModel")
-        print("Model Loaded")
 
-        # Initialize sensors
-        print("Initializing Sensors")
         camera_sensor = self.addSubModel(CameraSensor("CameraSensor"))
+        water_quality_cam_node = self.addSubModel(WaterQualityCamNode("WaterQualityCamNode", raspberry_pi_pins))
 
-        # Initialize communication models
-        print("Initializing Communication Models")
-        csi = self.addSubModel(CSI("CSI", data_types=["camera"]))
-
-        # Initialize water quality cam node
-        print("Initializing Water Quality Cam Node")
-        water_quality_cam_node = self.addSubModel(WaterQualityCamNode("WaterQualityCamNode"))
-
-        # Initialize OneM2M interface
-        print("Initializing OneM2M Interface")
         onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
-
-        # Initialize sink
-        print("Initializing Sink")
         sink = self.addSubModel(Sink("Sink"))
-
-        # Connect sensors to communication models
-        print("Connecting Camera Sensor to CSI")
-        self.connectPorts(camera_sensor.outport, csi.inports["camera"])
-
-        # Connect communication models to water quality cam node
-        print("Connecting CSI output to Water Quality Cam Node CSI input")
-        self.connectPorts(csi.outport, water_quality_cam_node.csi_inport)
-
-        # Connect water quality cam node to OneM2M interface
-        print("Connecting Water Quality Cam Node's outport to OneM2M Interface's inport")
+        
+        # Connecting the submodels
+        self.connectPorts(camera_sensor.outport, water_quality_cam_node.csi_inport)
         self.connectPorts(water_quality_cam_node.outport, onem2m_interface.inport)
-
-        # Connect OneM2M interface to sink
-        print("Connecting OneM2M Interface's outport to Sink's inport")
         self.connectPorts(onem2m_interface.outport, sink.inport)
-
-        print("Model initialization complete")   
-
 
 class MotorControlNodeModel(CoupledDEVS):
     def __init__(self):
         super().__init__("MotorControlNodeModel")
-        print("Model Loaded")
-
-        # Initialize sensors
-        print("Initializing Sensors")
         pulse_sensor = self.addSubModel(PulseSensor("PulseSensor"))
-
-        # Initialize communication models
-        print("Initializing Communication Models")
-        uart_comm = self.addSubModel(UART("UART", data_types=["pulse"]))
-
-        # Initialize motor control node
-        print("Initializing Motor Control Node")
-        motor_control_node = self.addSubModel(MotorControlNode("MotorControlNode"))
-
-        # Initialize OneM2M interface
-        print("Initializing OneM2M Interface")
+        motor_control_node = self.addSubModel(MotorControlNode("MotorControlNode", esp_pins))
         onem2m_interface = self.addSubModel(OneM2MInterface("OneM2MInterface"))
-
-        # Initialize sink
-        print("Initializing Sink")
         sink = self.addSubModel(Sink("Sink"))
 
-        # Connect sensors to communication models
-        print("Connecting Pulse Sensor to UART")
-        self.connectPorts(pulse_sensor.outport, uart_comm.inports["pulse"])
-
-        # Connect communication models to motor control node
-        print("Connecting UART output to Motor Control Node UART input")
-        self.connectPorts(uart_comm.outport, motor_control_node.uart_inport)
-
-        # Connect motor control node to OneM2M interface
-        print("Connecting Motor Control Node's outport to OneM2M Interface's inport")
+        self.connectPorts(pulse_sensor.outport, motor_control_node.pulse_inport)
         self.connectPorts(motor_control_node.outport, onem2m_interface.inport)
-
-        # Connect OneM2M interface to sink
-        print("Connecting OneM2M Interface's outport to Sink's inport")
         self.connectPorts(onem2m_interface.outport, sink.inport)
-
-        print("Model initialization complete")
-        
